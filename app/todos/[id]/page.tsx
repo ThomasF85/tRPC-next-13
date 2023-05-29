@@ -1,6 +1,7 @@
 "use client";
 
 import { trpc as api } from "@/trpc/client/trpc";
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {

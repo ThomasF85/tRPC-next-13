@@ -43,7 +43,6 @@ export interface ApiOptions<
   Q extends { [key: string]: (...args: any[]) => any },
   M extends { [key: string]: (...args: any[]) => any }
 > {
-  url: string;
   queries: Q;
   mutations: M;
 }
@@ -84,3 +83,10 @@ export type ProtectedMutationType<
 > = {
   [P in keyof T]: UseMutation<OmitFirstArg<T[P]>>;
 };
+
+export type ClientApiType<
+  T extends {
+    queries: { [key: string]: (...args: any[]) => any };
+    mutations: { [key: string]: (...args: any[]) => any };
+  }
+> = QueryType<T["queries"]> & MutationType<T["mutations"]>;

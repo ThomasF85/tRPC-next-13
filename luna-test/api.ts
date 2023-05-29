@@ -1,9 +1,10 @@
+import "server-only";
 import { create } from "@/luna-api/create";
 
-export const [api, serverApi, connector] = create({
-  url: "http://localhost:3000/api",
+export const [serverApi, connector] = create({
   queries: {
     getTodos: async () => {
+      console.log("hihi43");
       return todos;
     },
     getAnswer: async (x: number) => {
@@ -22,6 +23,8 @@ export const [api, serverApi, connector] = create({
     },
   },
 });
+
+export type API = typeof serverApi;
 
 interface Todo {
   id: string;

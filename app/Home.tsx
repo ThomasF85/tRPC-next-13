@@ -1,41 +1,29 @@
 "use client";
 
-import { api } from "@/luna-test/api";
 import styles from "./Home.module.css";
 import Link from "next/link";
 import { useState } from "react";
-import { protectedApi } from "@/luna-test/protectedApi";
+import { api } from "@/luna-test/clientApi";
 
-export default function Home({
-  answer,
-  protectedAnswer,
-}: {
-  answer: any;
-  protectedAnswer: any;
-}) {
+export default function Home({ answer }: { answer: any }) {
   const { data: todos, isLoading, isError, refetch } = api.getTodos.useQuery();
-  const {
-    data: protectedTodos,
-    isLoading: protectedIsLoading,
-    isError: protectedIsError,
-  } = protectedApi.getTodos.useQuery();
+
   const [count, setCount] = useState(1);
   /*const { mutate: addTodo } = api.addTodo.useMutation({
     onSuccess: () => refetch(),
   });*/
 
-  if (isLoading || protectedIsLoading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (isError || protectedIsError) {
+  if (isError) {
     return <div>An Error occurred</div>;
   }
 
   return (
     <>
       <TodoList todos={todos} />
-      <TodoList todos={protectedTodos} />
       <p>Count: {count}</p>
       <button onClick={() => setCount((prev) => prev + 1)}>inc</button>
     </>

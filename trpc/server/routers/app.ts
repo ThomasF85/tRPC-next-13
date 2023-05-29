@@ -1,5 +1,7 @@
+import "server-only";
 import { z } from "zod";
 import { procedure, router } from "../trpc";
+import { cookies } from "next/headers";
 
 export const appRouter = router({
   todos: procedure.query(() => todos),
@@ -9,6 +11,8 @@ export const appRouter = router({
   addTodo: procedure.input(z.string()).mutation(({ input: todo }) => {
     const newTodo: Todo = { id: crypto.randomUUID(), todo, completed: false };
     todos.push(newTodo);
+    cookies();
+    console.log("hihi42");
     return newTodo;
   }),
   toggleCompleted: procedure.input(z.string()).mutation(({ input: id }) => {
