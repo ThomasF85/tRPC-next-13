@@ -1,21 +1,21 @@
-import { create } from "./create";
+import { createProtected } from "./createProtected";
 
-export const [api, serverApi, connector] = create({
-  url: "http://localhost:3000/api",
+export const [protectedApi, createServerApi] = createProtected({
+  url: "http://localhost:3000/api/protected",
   queries: {
-    getTodos: async () => {
+    getTodos: async (ctx: any) => {
       return todos;
     },
-    getAnswer: async (x: number) => {
+    getAnswer: async (ctx: any, x: number) => {
       const answer: Answer = { answer: "answer " + x };
       return answer;
     },
-    getNumber: async () => {
+    getNumber: async (ctx: any) => {
       return 42;
     },
   },
   mutations: {
-    addTodo: async (text: string, completed: boolean) => {
+    addTodo: async (ctx: any, text: string, completed: boolean) => {
       const newTodo: Todo = { id: crypto.randomUUID(), text, completed };
       todos.push(newTodo);
       return newTodo;
@@ -24,11 +24,6 @@ export const [api, serverApi, connector] = create({
 });
 
 /*
-api.getTodos.useQuery;
-const queryResult = api.getAnswer.useQuery(6);
-const answer = queryResult.data;
-const a = api.addTodo.useMutation();
-const b = a.data;
 serverApi.getTodos();
 */
 

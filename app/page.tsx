@@ -1,14 +1,16 @@
 "use client";
 
-import { trpc as api } from "@/trpc/client/trpc";
 import styles from "./page.module.css";
 import Link from "next/link";
+import { api } from "@/luna-api/lunatest";
+import { useState } from "react";
 
 export default function Home() {
-  const { data: todos, isLoading, isError, refetch } = api.todos.useQuery();
-  const { mutate: addTodo } = api.addTodo.useMutation({
+  const { data: todos, isLoading, isError, refetch } = api.getTodos.useQuery();
+  const [a, setA] = useState(1);
+  /*const { mutate: addTodo } = api.addTodo.useMutation({
     onSuccess: () => refetch(),
-  });
+  });*/
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -24,16 +26,17 @@ export default function Home() {
         {todos?.map((todo) => (
           <li className={styles.listitem} key={todo.id}>
             <Link className={styles.link} href={`/todos/${todo.id}`}>
-              {todo.todo}
+              {todo.text}
             </Link>
           </li>
         ))}
       </ul>
       <form
         className={styles.form}
-        onSubmit={(event) => {
+        onSubmit={(event: any) => {
           event.preventDefault();
-          addTodo(event.target.elements.todo.value);
+          setA((prev) => prev + 1);
+          //addTodo(event.target.elements.todo.value);
         }}
       >
         <label>
