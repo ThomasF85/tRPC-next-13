@@ -1,3 +1,3 @@
-import { connector } from "@/luna-api/lunatest";
+import { connector } from "@/luna-test/api";
 
 export const { GET, POST } = connector;

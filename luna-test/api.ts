@@ -1,4 +1,4 @@
-import { create } from "./create";
+import { create } from "@/luna-api/create";
 
 export const [api, serverApi, connector] = create({
   url: "http://localhost:3000/api",
@@ -23,15 +23,6 @@ export const [api, serverApi, connector] = create({
   },
 });
 
-/*
-api.getTodos.useQuery;
-const queryResult = api.getAnswer.useQuery(6);
-const answer = queryResult.data;
-const a = api.addTodo.useMutation();
-const b = a.data;
-serverApi.getTodos();
-*/
-
 interface Todo {
   id: string;
   text: string;
@@ -45,7 +36,27 @@ interface Answer {
 const todos: Todo[] = [
   {
     id: "1",
-    text: "cook",
+    text: "Todo 1",
+    completed: false,
+  },
+  {
+    id: "2",
+    text: "Todo 2",
+    completed: false,
+  },
+  {
+    id: "3",
+    text: "Todo 3",
+    completed: false,
+  },
+  {
+    id: "4",
+    text: "Todo 4",
+    completed: false,
+  },
+  {
+    id: "5",
+    text: "Todo 5",
     completed: false,
   },
 ];

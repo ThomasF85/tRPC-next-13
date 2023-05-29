@@ -1,13 +1,16 @@
-import { createProtected } from "./createProtected";
+import { createProtected } from "@/luna-api/createProtected";
 
 export const [protectedApi, createServerApi] = createProtected({
   url: "http://localhost:3000/api/protected",
   queries: {
     getTodos: async (ctx: any) => {
-      return todos;
+      return [ctx, ...todos];
     },
     getAnswer: async (ctx: any, x: number) => {
-      const answer: Answer = { answer: "answer " + x };
+      const answer: Answer & { ctx: any } = {
+        answer: "answer " + x,
+        ctx,
+      };
       return answer;
     },
     getNumber: async (ctx: any) => {
@@ -23,10 +26,6 @@ export const [protectedApi, createServerApi] = createProtected({
   },
 });
 
-/*
-serverApi.getTodos();
-*/
-
 interface Todo {
   id: string;
   text: string;
@@ -40,7 +39,27 @@ interface Answer {
 const todos: Todo[] = [
   {
     id: "1",
-    text: "cook",
+    text: "Protected Todo 1",
+    completed: false,
+  },
+  {
+    id: "2",
+    text: "Protected Todo 2",
+    completed: false,
+  },
+  {
+    id: "3",
+    text: "Protected Todo 3",
+    completed: false,
+  },
+  {
+    id: "4",
+    text: "Protected Todo 4",
+    completed: false,
+  },
+  {
+    id: "5",
+    text: "Protected Todo 5",
     completed: false,
   },
 ];

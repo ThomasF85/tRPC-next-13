@@ -22,7 +22,7 @@ export interface Connector {
 export interface CreateServerApi<
   Q extends { [key: string]: (ctx: any, ...args: any[]) => any }
 > {
-  (createContext: () => any): [
+  (getContext: () => any): [
     serverApi: {
       [P in keyof Q]: OmitFirstArg<Q[P]>;
     },
