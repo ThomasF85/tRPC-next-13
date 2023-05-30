@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { SWRResponse } from "swr";
+import { SWRConfiguration, SWRResponse } from "swr";
 import { SWRMutationConfiguration, SWRMutationResponse } from "swr/mutation";
 
 export interface Connector {
@@ -53,6 +53,10 @@ type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 
 type UseQuery<T extends (...args: any[]) => any> = {
   useQuery: (...args: Parameters<T>) => SWRResponse<Awaited<ReturnType<T>>>;
+  useQueryOptions: (
+    options: Omit<SWRConfiguration<Awaited<ReturnType<T>>>, "fetcher">,
+    ...args: Parameters<T>
+  ) => SWRResponse<Awaited<ReturnType<T>>>;
 };
 
 export type QueryType<T extends { [key: string]: (...args: any[]) => any }> = {
@@ -72,7 +76,7 @@ type UseMutation<T extends (...args: any[]) => any> = {
       "fetcher"
     >
   ) => Omit<SWRMutationResponse<Awaited<ReturnType<T>>>, "trigger"> & {
-    trigger: (...args: Parameters<T>) => void;
+    mutate: (...args: Parameters<T>) => void;
   };
 };
 

@@ -6,21 +6,13 @@ import { useState } from "react";
 import { api } from "@/luna-test/clientApi";
 
 export default function Home({ answer }: { answer: any }) {
-  const {
-    data: todos,
-    error,
-    mutate,
-  } = api.getTodos.useQuery(9, { a: 4, b: 8 });
-  console.log("RENDER", error);
+  const { data: todos, isLoading, error, mutate } = api.getTodos.useQuery();
   const [count, setCount] = useState(1);
-  const { trigger: addTodo, isMutating } = api.addTodo.useMutation({
-    onSuccess: (data, key) => {
-      console.log("success", data, key);
-      mutate();
-    },
+  const { mutate: addTodo } = api.addTodo.useMutation({
+    onSuccess: () => mutate(),
   });
 
-  if (!todos) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 

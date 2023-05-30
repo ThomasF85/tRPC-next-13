@@ -22,26 +22,20 @@ export function createClient<
       const basePath: string = `${path}${path.endsWith("/") ? "" : "/"}${prop}`;
       target[prop] = {
         useQuery: (...args: any) => useSWR([basePath, args], fetcher),
-        useMutation: (options: any = {}) => {
-          const mutationResult = useSWRMutation(
+        useQueryOptions: (options: any, ...args: any) =>
+          useSWR([basePath, args], fetcher, options),
+        useMutation: (options?: any) => {
+          const mutationResult: any = useSWRMutation(
             basePath,
             postFunction,
             options
           );
 
-          const trigger = useMemo(() => {
+          mutationResult.mutate = useMemo(() => {
             return (...args: any[]) => mutationResult.trigger(args);
           }, [mutationResult.trigger]);
 
-          const result = useMemo(
-            () => ({
-              ...mutationResult,
-              trigger,
-            }),
-            [mutationResult]
-          );
-
-          return result;
+          return mutationResult;
         },
       };
       return target[prop];
