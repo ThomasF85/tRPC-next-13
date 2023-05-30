@@ -4,11 +4,17 @@ import styles from "./Home.module.css";
 import Link from "next/link";
 import { useState } from "react";
 import { api } from "@/luna-test/clientApi";
+import { protectedApi } from "@/luna-test/protectedClientApi";
 
 export default function Home({ answer }: { answer: any }) {
-  const { data: todos, isLoading, error, mutate } = api.getTodos.useQuery();
+  const {
+    data: todos,
+    isLoading,
+    error,
+    mutate,
+  } = protectedApi.getTodos.useQuery();
   const [count, setCount] = useState(1);
-  const { mutate: addTodo } = api.addTodo.useMutation({
+  const { mutate: addTodo } = protectedApi.addTodo.useMutation({
     onSuccess: () => mutate(),
   });
 

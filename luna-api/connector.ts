@@ -5,7 +5,12 @@ import { decodeArguments } from "./argumentsEncoder";
 export function getConnector<
   Q extends { [key: string]: (...args: any[]) => any },
   M extends { [key: string]: (...args: any[]) => any }
->(queries: Q, mutations: M, getContext?: () => any): Connector {
+>(
+  queries: Q,
+  mutations: M,
+  getContext?: () => any,
+  middleware?: (ctx: any, next: () => any, ...args: any[]) => any
+): Connector {
   return {
     GET: async (
       request: NextRequest,
@@ -24,7 +29,9 @@ export function getConnector<
         request.nextUrl.searchParams.get("arguments")
       );
       const result = getContext
-        ? await query(getContext(), ...args)
+        ? middleware
+          ? await middleware(await getContext(), query, ...args)
+          : await query(await getContext(), ...args)
         : await query(...args);
       return NextResponse.json(result);
     },
@@ -43,7 +50,9 @@ export function getConnector<
       }
       const args: any[] = await request.json();
       const result = getContext
-        ? await mutation(getContext(), ...args)
+        ? middleware
+          ? await middleware(await getContext(), mutation, ...args)
+          : await mutation(await getContext(), ...args)
         : await mutation(...args);
       return NextResponse.json(result);
     },
