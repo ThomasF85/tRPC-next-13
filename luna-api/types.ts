@@ -68,10 +68,17 @@ export type ProtectedQueryType<
   [P in keyof T]: UseQuery<OmitFirstArg<T[P]>>;
 };
 
+type ApiUseMutationOptions<T extends (...args: any[]) => any> = Omit<
+  UseMutationOptions<Awaited<ReturnType<T>>, unknown, Parameters<T>>,
+  "mutationFn" | "mutationKey" | "variables"
+>;
 type UseMutation<T extends (...args: any[]) => any> = {
   useMutation: (
-    options?: UseMutationOptions<Awaited<ReturnType<T>>>
-  ) => UseMutationResult<Awaited<ReturnType<T>>>;
+    options?: ApiUseMutationOptions<T>
+    // TODO: handle mutateAsync
+  ) => Omit<UseMutationResult<Awaited<ReturnType<T>>>, "mutate"> & {
+    mutate: (...args: Parameters<T>) => void;
+  };
 };
 
 export type MutationType<T extends { [key: string]: (...args: any[]) => any }> =

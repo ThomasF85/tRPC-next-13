@@ -1,6 +1,6 @@
 export function encodeArguments(args: any[]): string {
   if (args.length === 0) {
-    return "[]";
+    return "none";
   }
   return encodeURIComponent(JSON.stringify(args));
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Connector } from "./types";
-import { decodeArguments } from "./uriEncoder";
+import { decodeArguments } from "./argumentsEncoder";
 
 export function getConnector<
   Q extends { [key: string]: (...args: any[]) => any },
@@ -41,9 +41,7 @@ export function getConnector<
           { status: 404 }
         );
       }
-      const args: any[] = decodeArguments(
-        request.nextUrl.searchParams.get("arguments")
-      );
+      const args: any[] = await request.json();
       const result = getContext
         ? await mutation(getContext(), ...args)
         : await mutation(...args);

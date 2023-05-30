@@ -14,9 +14,12 @@ export default function Home({ answer }: { answer: any }) {
   } = api.getTodos.useQuery(9, { a: 4, b: 8 });
 
   const [count, setCount] = useState(1);
-  /*const { mutate: addTodo } = api.addTodo.useMutation({
-    onSuccess: () => refetch(),
-  });*/
+  const { mutate: addTodo } = api.addTodo.useMutation({
+    onSuccess: (data, variables) => {
+      console.log("success", data, variables);
+      refetch();
+    },
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -28,14 +31,14 @@ export default function Home({ answer }: { answer: any }) {
 
   return (
     <>
-      <TodoList todos={todos} />
+      <TodoList todos={todos} addTodo={addTodo} />
       <p>Count: {count}</p>
       <button onClick={() => setCount((prev) => prev + 1)}>inc</button>
     </>
   );
 }
 
-function TodoList({ todos }: { todos: any }) {
+function TodoList({ todos, addTodo }: { todos: any; addTodo: any }) {
   return (
     <>
       <ul className={styles.list}>
@@ -51,7 +54,7 @@ function TodoList({ todos }: { todos: any }) {
         className={styles.form}
         onSubmit={(event: any) => {
           event.preventDefault();
-          //addTodo(event.target.elements.todo.value);
+          addTodo(event.target.elements.todo.value, false);
         }}
       >
         <label>
