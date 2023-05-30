@@ -3,8 +3,8 @@ import { create } from "@/luna-api/create";
 
 export const [serverApi, connector] = create({
   queries: {
-    getTodos: async () => {
-      console.log("hihi43");
+    getTodos: async (first: number, x: { a: number; b: number }) => {
+      console.log(first + x.a + x.b);
       return todos;
     },
     getAnswer: async (x: number) => {

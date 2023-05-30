@@ -6,7 +6,12 @@ import { useState } from "react";
 import { api } from "@/luna-test/clientApi";
 
 export default function Home({ answer }: { answer: any }) {
-  const { data: todos, isLoading, isError, refetch } = api.getTodos.useQuery();
+  const {
+    data: todos,
+    isLoading,
+    isError,
+    refetch,
+  } = api.getTodos.useQuery(9, { a: 4, b: 8 });
 
   const [count, setCount] = useState(1);
   /*const { mutate: addTodo } = api.addTodo.useMutation({

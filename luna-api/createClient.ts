@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ClientApiType } from "./types";
 import { fetcher } from "./utils";
+import { encodeArguments } from "./uriEncoder";
 
 export function createClient<
   T extends {
@@ -19,11 +20,19 @@ export function createClient<
         return target[prop];
       }
       target[prop] = {
-        useQuery: (...args: any) =>
-          useQuery({
-            queryKey: [prop, ...args],
-            queryFn: () => fetcher(`${url}/${prop}`),
-          }),
+        useQuery: (...args: any) => {
+          // Todo: check if varargs works with useCallback here
+          const baseURI: string = `${url}${
+            url.endsWith("/") ? "" : "/"
+          }${prop}`;
+          const encodedArgs = encodeArguments(args);
+          const uri =
+            args.length === 0 ? baseURI : `${baseURI}?arguments=${encodedArgs}`;
+          return useQuery({
+            queryKey: [prop, encodedArgs],
+            queryFn: () => fetcher(uri),
+          });
+        },
       };
       return target[prop];
     },

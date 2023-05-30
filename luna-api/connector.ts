@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Connector } from "./types";
+import { decodeArguments } from "./uriEncoder";
 
 export function getConnector<
   Q extends { [key: string]: (...args: any[]) => any },
@@ -7,7 +8,7 @@ export function getConnector<
 >(queries: Q, mutations: M, getContext?: () => any): Connector {
   return {
     GET: async (
-      request: Request,
+      request: NextRequest,
       params: {
         params: { method: string };
       }
@@ -19,11 +20,16 @@ export function getConnector<
           { status: 404 }
         );
       }
-      const result = getContext ? await query(getContext()) : await query();
+      const args: any[] = decodeArguments(
+        request.nextUrl.searchParams.get("arguments")
+      );
+      const result = getContext
+        ? await query(getContext(), ...args)
+        : await query(...args);
       return NextResponse.json(result);
     },
     POST: async (
-      request: Request,
+      request: NextRequest,
       params: {
         params: { method: string };
       }
@@ -35,9 +41,12 @@ export function getConnector<
           { status: 404 }
         );
       }
+      const args: any[] = decodeArguments(
+        request.nextUrl.searchParams.get("arguments")
+      );
       const result = getContext
-        ? await mutation(getContext())
-        : await mutation();
+        ? await mutation(getContext(), ...args)
+        : await mutation(...args);
       return NextResponse.json(result);
     },
   };

@@ -3,16 +3,17 @@ import {
   UseMutationResult,
   UseQueryResult,
 } from "@tanstack/react-query";
+import { NextRequest } from "next/server";
 
 export interface Connector {
   GET: (
-    request: Request,
+    request: NextRequest,
     params: {
       params: { method: string };
     }
   ) => Promise<Response>;
   POST: (
-    request: Request,
+    request: NextRequest,
     params: {
       params: { method: string };
     }
