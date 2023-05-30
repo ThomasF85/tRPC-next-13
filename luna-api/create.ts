@@ -6,6 +6,29 @@ import {
 } from "./types";
 import { getConnector } from "./connector";
 
+function verifyUniqueMethodNames(
+  queries: { [key: string]: (...args: any[]) => any },
+  mutations: { [key: string]: (...args: any[]) => any }
+) {
+  const names: Set<string> = new Set();
+  for (const method in queries) {
+    if (names.has(method)) {
+      throw new Error(
+        `Method names for queries and mutations must be unique. Ambiguous method name: ${method}`
+      );
+    }
+    names.add(method);
+  }
+  for (const method in mutations) {
+    if (names.has(method)) {
+      throw new Error(
+        `Method names for queries and mutations must be unique. Ambiguous method name: ${method}`
+      );
+    }
+    names.add(method);
+  }
+}
+
 export function create<
   Q extends { [key: string]: (...args: any[]) => any },
   M extends { [key: string]: (...args: any[]) => any }
@@ -13,6 +36,7 @@ export function create<
   options: ApiOptions<Q, M>
 ): [Q & M & { queries: Q; mutations: M }, Connector] {
   const { queries, mutations } = options;
+  verifyUniqueMethodNames(queries, mutations);
   const serverApi = {
     ...queries,
     ...mutations,
@@ -39,6 +63,7 @@ export function createProtected<
   Connector
 ] {
   const { queries, mutations, getContext, middleware } = options;
+  verifyUniqueMethodNames(queries, mutations);
   const queriesWithContext: any = {};
   const mutationsWithContext: any = {};
   if (middleware) {

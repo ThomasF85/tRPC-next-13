@@ -1,14 +1,31 @@
 import "server-only";
-import { createProtected } from "@/luna-api/create";
+import { create, createProtected } from "@/luna-api/create";
 import { MiddlewareOptions } from "@/luna-api/types";
+import { combine } from "@/luna-api/combine";
 
-interface User {
-  id: string;
-  name: string;
-  isAdmin: boolean;
-}
+const publicApi = create({
+  queries: {
+    getTodos: async () => {
+      return todos;
+    },
+    getAnswer: async (x: number) => {
+      const answer: Answer = { answer: "answer " + x };
+      return answer;
+    },
+    getNumber: async () => {
+      return 42;
+    },
+  },
+  mutations: {
+    addTodo: async (text: string, completed: boolean) => {
+      const newTodo: Todo = { id: crypto.randomUUID(), text, completed };
+      todos.push(newTodo);
+      return newTodo;
+    },
+  },
+});
 
-export const [protectedServerApi, protectedConnector] = createProtected({
+const protectedApi = createProtected({
   getContext: async (): Promise<User | null> => {
     console.log("Gotten context");
     return {
@@ -22,20 +39,20 @@ export const [protectedServerApi, protectedConnector] = createProtected({
     return next();
   },
   queries: {
-    getTodos: async (user: User | null) => {
+    getTodos2: async (user: User | null) => {
       console.log(user);
       return todos;
     },
-    getAnswer: async (user: User | null, x: number) => {
+    getAnswer2: async (user: User | null, x: number) => {
       const answer: Answer = { answer: "answer " + x };
       return answer;
     },
-    getNumber: async (user: User | null) => {
+    getNumber2: async (user: User | null) => {
       return 42;
     },
   },
   mutations: {
-    addTodo: async (user: User | null, text: string, completed: boolean) => {
+    addTodo2: async (user: User | null, text: string, completed: boolean) => {
       const newTodo: Todo = { id: crypto.randomUUID(), text, completed };
       todos.push(newTodo);
       return newTodo;
@@ -43,7 +60,15 @@ export const [protectedServerApi, protectedConnector] = createProtected({
   },
 });
 
-export type ProtectedAPI = typeof protectedServerApi;
+export const [serverApi, connector] = combine(publicApi, protectedApi);
+
+export type API = typeof serverApi;
+
+interface User {
+  id: string;
+  name: string;
+  isAdmin: boolean;
+}
 
 interface Todo {
   id: string;
