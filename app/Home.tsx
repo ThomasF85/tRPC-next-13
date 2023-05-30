@@ -8,24 +8,23 @@ import { api } from "@/luna-test/clientApi";
 export default function Home({ answer }: { answer: any }) {
   const {
     data: todos,
-    isLoading,
-    isError,
-    refetch,
+    error,
+    mutate,
   } = api.getTodos.useQuery(9, { a: 4, b: 8 });
-
+  console.log("RENDER", error);
   const [count, setCount] = useState(1);
-  const { mutate: addTodo } = api.addTodo.useMutation({
-    onSuccess: (data, variables) => {
-      console.log("success", data, variables);
-      refetch();
+  const { trigger: addTodo, isMutating } = api.addTodo.useMutation({
+    onSuccess: (data, key) => {
+      console.log("success", data, key);
+      mutate();
     },
   });
 
-  if (isLoading) {
+  if (!todos) {
     return <div>Loading...</div>;
   }
 
-  if (isError) {
+  if (error) {
     return <div>An Error occurred</div>;
   }
 

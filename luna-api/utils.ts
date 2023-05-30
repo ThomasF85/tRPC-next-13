@@ -1,4 +1,9 @@
-export const fetcher = async (url: string): Promise<any> => {
+import { encodeArguments } from "./argumentsEncoder";
+
+export const fetcher = async (x: [path: string, args: any[]]): Promise<any> => {
+  const [path, args] = x;
+  const url =
+    args.length === 0 ? path : `${path}?arguments=${encodeArguments(args)}`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -14,13 +19,13 @@ export const fetcher = async (url: string): Promise<any> => {
   return res.json();
 };
 
-export const getPostFunction = (url: string) => async (args: any[]) => {
+export const postFunction = async (url: string, { arg }: { arg: any[] }) => {
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(args),
+    body: JSON.stringify(arg),
   });
   return response.json();
 };

@@ -1,15 +1,15 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { ClientApiType } from "./types";
-import { fetcher, getPostFunction } from "./utils";
-import { encodeArguments } from "./argumentsEncoder";
+import { fetcher, postFunction } from "./utils";
 import { useMemo } from "react";
+import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
 
 export function createClient<
   T extends {
     queries: { [key: string]: (...args: any[]) => any };
     mutations: { [key: string]: (...args: any[]) => any };
   }
->(url: string): ClientApiType<T> {
+>(path: string): ClientApiType<T> {
   const handler = {
     get(target: any, prop: string) {
       // todo: check what to do about $$typeof and prototype
@@ -19,36 +19,29 @@ export function createClient<
       if (target.hasOwnProperty(prop)) {
         return target[prop];
       }
-      const baseURI: string = `${url}${url.endsWith("/") ? "" : "/"}${prop}`;
-      const postFunction: (args: any[]) => Promise<any> =
-        getPostFunction(baseURI);
-      const mutationKey = [prop];
+      const basePath: string = `${path}${path.endsWith("/") ? "" : "/"}${prop}`;
       target[prop] = {
-        useQuery: (...args: any) => {
-          // Todo: Check if caching encodedArgs (using deep equality) makes sense here
-          const encodedArgs = encodeArguments(args);
-          const uri =
-            args.length === 0 ? baseURI : `${baseURI}?arguments=${encodedArgs}`;
-          return useQuery({
-            queryKey: [prop, encodedArgs],
-            queryFn: () => fetcher(uri),
-          });
-        },
+        useQuery: (...args: any) => useSWR([basePath, args], fetcher),
         useMutation: (options: any = {}) => {
-          const mutationResult = useMutation({
-            ...options,
-            mutationKey,
-            mutationFn: postFunction,
-          });
+          const mutationResult = useSWRMutation(
+            basePath,
+            postFunction,
+            options
+          );
 
-          const mutate = useMemo(() => {
-            return (...args: any[]) => mutationResult.mutate(args as any);
-          }, [mutationResult.mutate]);
+          const trigger = useMemo(() => {
+            return (...args: any[]) => mutationResult.trigger(args);
+          }, [mutationResult.trigger]);
 
-          return {
-            ...mutationResult,
-            mutate,
-          };
+          const result = useMemo(
+            () => ({
+              ...mutationResult,
+              trigger,
+            }),
+            [mutationResult]
+          );
+
+          return result;
         },
       };
       return target[prop];

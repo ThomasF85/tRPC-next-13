@@ -1,9 +1,6 @@
-import {
-  UseMutationOptions,
-  UseMutationResult,
-  UseQueryResult,
-} from "@tanstack/react-query";
 import { NextRequest } from "next/server";
+import { SWRResponse } from "swr";
+import { SWRMutationConfiguration, SWRMutationResponse } from "swr/mutation";
 
 export interface Connector {
   GET: (
@@ -55,7 +52,7 @@ type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 
 type UseQuery<T extends (...args: any[]) => any> = {
-  useQuery: (...args: Parameters<T>) => UseQueryResult<Awaited<ReturnType<T>>>;
+  useQuery: (...args: Parameters<T>) => SWRResponse<Awaited<ReturnType<T>>>;
 };
 
 export type QueryType<T extends { [key: string]: (...args: any[]) => any }> = {
@@ -68,16 +65,14 @@ export type ProtectedQueryType<
   [P in keyof T]: UseQuery<OmitFirstArg<T[P]>>;
 };
 
-type ApiUseMutationOptions<T extends (...args: any[]) => any> = Omit<
-  UseMutationOptions<Awaited<ReturnType<T>>, unknown, Parameters<T>>,
-  "mutationFn" | "mutationKey" | "variables"
->;
 type UseMutation<T extends (...args: any[]) => any> = {
   useMutation: (
-    options?: ApiUseMutationOptions<T>
-    // TODO: handle mutateAsync
-  ) => Omit<UseMutationResult<Awaited<ReturnType<T>>>, "mutate"> & {
-    mutate: (...args: Parameters<T>) => void;
+    options?: Omit<
+      SWRMutationConfiguration<Awaited<ReturnType<T>>, unknown>,
+      "fetcher"
+    >
+  ) => Omit<SWRMutationResponse<Awaited<ReturnType<T>>>, "trigger"> & {
+    trigger: (...args: Parameters<T>) => void;
   };
 };
 
