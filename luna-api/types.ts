@@ -25,17 +25,20 @@ export interface ApiOptions<
   mutations: M;
 }
 
+export interface MiddlewareOptions<C> {
+  ctx: C;
+  methodType: "query" | "mutation";
+  method: string;
+  args: any[];
+}
+
 export interface ProtectedApiOptions<
   C,
   Q extends { [key: string]: (ctx: C, ...args: any[]) => any },
   M extends { [key: string]: (ctx: C, ...args: any[]) => any }
 > extends ApiOptions<Q, M> {
   getContext: () => Promise<C> | C;
-  middleware?: (
-    ctx: C,
-    next: (ctx: C, ...args: any[]) => any,
-    ...args: any[]
-  ) => any;
+  middleware?: (options: MiddlewareOptions<C>, next: () => any) => any;
 }
 
 type OmitFirstArg<F> = F extends (x: any, ...args: infer P) => infer R

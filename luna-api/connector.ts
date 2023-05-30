@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Connector } from "./types";
+import { Connector, MiddlewareOptions } from "./types";
 import { decodeArguments } from "./argumentsEncoder";
 
 export function getConnector<
@@ -9,7 +9,7 @@ export function getConnector<
   queries: Q,
   mutations: M,
   getContext?: () => any,
-  middleware?: (ctx: any, next: () => any, ...args: any[]) => any
+  middleware?: (options: MiddlewareOptions<any>, next: () => any) => any
 ): Connector {
   return {
     GET: async (
@@ -28,11 +28,16 @@ export function getConnector<
       const args: any[] = decodeArguments(
         request.nextUrl.searchParams.get("arguments")
       );
-      const result = getContext
-        ? middleware
-          ? await middleware(await getContext(), query, ...args)
-          : await query(await getContext(), ...args)
-        : await query(...args);
+      if (!getContext) {
+        return NextResponse.json(await query(...args));
+      }
+      const ctx = await getContext();
+      const result = middleware
+        ? await middleware(
+            { ctx, method: params.params.method, methodType: "query", args },
+            async () => await query(ctx, ...args)
+          )
+        : await query(ctx, ...args);
       return NextResponse.json(result);
     },
     POST: async (
@@ -49,11 +54,16 @@ export function getConnector<
         );
       }
       const args: any[] = await request.json();
-      const result = getContext
-        ? middleware
-          ? await middleware(await getContext(), mutation, ...args)
-          : await mutation(await getContext(), ...args)
-        : await mutation(...args);
+      if (!getContext) {
+        return NextResponse.json(await mutation(...args));
+      }
+      const ctx = await getContext();
+      const result = middleware
+        ? await middleware(
+            { ctx, method: params.params.method, methodType: "mutation", args },
+            async () => await mutation(ctx, ...args)
+          )
+        : await mutation(ctx, ...args);
       return NextResponse.json(result);
     },
   };

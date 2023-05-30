@@ -43,12 +43,22 @@ export function createProtected<
   const mutationsWithContext: any = {};
   if (middleware) {
     for (const query in queries) {
-      queriesWithContext[query] = async (...args: any[]) =>
-        await middleware(await getContext(), queries[query], ...args);
+      queriesWithContext[query] = async (...args: any[]) => {
+        const ctx = await getContext();
+        await middleware(
+          { ctx, args, method: query, methodType: "query" },
+          () => queries[query](ctx, ...args)
+        );
+      };
     }
     for (const mutation in mutations) {
-      mutationsWithContext[mutation] = async (...args: any[]) =>
-        await middleware(await getContext(), mutations[mutation], ...args);
+      mutationsWithContext[mutation] = async (...args: any[]) => {
+        const ctx = await getContext();
+        await middleware(
+          { ctx, args, method: mutation, methodType: "mutation" },
+          () => mutations[mutation](ctx, ...args)
+        );
+      };
     }
   } else {
     for (const query in queries) {

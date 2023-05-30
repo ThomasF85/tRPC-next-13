@@ -1,5 +1,6 @@
 import "server-only";
 import { createProtected } from "@/luna-api/create";
+import { MiddlewareOptions } from "@/luna-api/types";
 
 interface User {
   id: string;
@@ -16,13 +17,9 @@ export const [protectedServerApi, protectedConnector] = createProtected({
       isAdmin: false,
     };
   },
-  middleware: (
-    user: User | null,
-    next: (user: User | null, ...args: any[]) => any,
-    ...args: any[]
-  ) => {
-    console.log("middleware fired: ", user, args);
-    return next(user, ...args);
+  middleware: (options: MiddlewareOptions<User | null>, next: () => any) => {
+    console.log("middleware fired: ", options);
+    return next();
   },
   queries: {
     getTodos: async (user: User | null) => {
